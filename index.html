@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Website Form</title>
+</head>
+<body>
+    <header>
+        <img src="image/logo.png" alt="Logo" class="logo"> <!-- Ganti dengan path logo Anda -->
+        <span class="company-name">Website Form</span> <!-- Nama Perusahaan -->
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="#"><i class="fas fa-home"></i> Beranda</a></li>
+                <li><a href="#form-section"><i class="fas fa-file-alt"></i> Formulir</a></li>
+                <li><a href="#table-section"><i class="fas fa-table"></i> Tabel</a></li>
+                <li><a href="#contact-section"><i class="fas fa-envelope"></i> Kontak</a></li>
+            </ul>
+        </nav>
+    </header>    
+
+    <main>
+        <section class="hero">
+            <img src="image/beranda.jpg" alt="Gambar Hero" />
+            <div class="hero-text">
+                <h1>Selamat Datang di Website Kami</h1>
+                <p>Menawarkan pengalaman yang luar biasa hanya untuk Anda!</p>
+                <a class="button" href="#">Pelajari Lebih Lanjut</a>
+            </div>
+        </section>
+
+        <section id="form-section" class="form-section">
+            <h2>Form Input</h2>
+            <form id="contact-form">
+                <label for="name">Nama:</label>
+                <input type="text" id="name" name="name" placeholder="Masukkan nama Anda" required>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Masukkan email Anda" required>
+                
+                <label for="dob">Tanggal Lahir:</label>
+                <input type="date" id="dob" name="dob" required>
+                
+                <label for="phone">No HP:</label>
+                <input type="tel" id="phone" name="phone" placeholder="Masukkan nomor HP Anda" required>
+
+                <button type="submit">Input</button>
+            </form>
+        </section>
+
+        <section id="table-section" class="table-section">
+            <h2>Data Tabel</h2>
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Tanggal Lahir</th>
+                        <th>No HP</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data akan ditambahkan di sini -->
+                </tbody>
+            </table>
+            <button id="download-csv" class="button">Unduh CSV</button>
+        </section>
+        <section id="contact-section" class="form-section">
+            <h2>Kontak Kami</h2>
+            <form id="contact-us-form">
+                <label for="contact-name">Nama:</label>
+                <input type="text" id="contact-name" name="contact-name" placeholder="Masukkan nama Anda" required>
+        
+                <label for="contact-email">Email:</label>
+                <input type="email" id="contact-email" name="contact-email" placeholder="Masukkan email Anda" required>
+        
+                <label for="contact-message">Pesan:</label>
+                <textarea id="contact-message" name="contact-message" placeholder="Tulis pesan Anda di sini" rows="4" required></textarea>
+        
+                <button type="submit">Kirim Pesan</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Website Form | <a href="#">Privasi</a> | <a href="#">Syarat dan Ketentuan</a></p>
+    </footer>
+
+    <script>
+        let editIndex = -1; // Menyimpan indeks yang sedang diedit
+
+        // Fungsi untuk memuat data dari localStorage ke tabel
+        function loadData() {
+            const storedData = JSON.parse(localStorage.getItem('contactData')) || [];
+            const table = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+
+            // Menghapus semua baris tabel sebelum memuat ulang
+            table.innerHTML = "";
+
+            storedData.forEach((item, index) => {
+                const newRow = table.insertRow();
+                const cell1 = newRow.insertCell(0);
+                const cell2 = newRow.insertCell(1);
+                const cell3 = newRow.insertCell(2);
+                const cell4 = newRow.insertCell(3);
+                const cell5 = newRow.insertCell(4); // Sel untuk tombol aksi
+
+                cell1.textContent = item.name;
+                cell2.textContent = item.email;
+                cell3.textContent = item.dob; // Tanggal lahir
+                cell4.textContent = item.phone; // No HP
+
+                // Menambahkan ikon Edit
+                const editButton = document.createElement('button');
+                editButton.className = 'icon-button edit-button';
+                editButton.innerHTML = '<i class="fas fa-edit"></i>';
+                editButton.onclick = function() {
+                    editRow(index);
+                };
+                cell5.appendChild(editButton);
+
+                // Menambahkan ikon Hapus
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'icon-button delete-button';
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteButton.onclick = function() {
+                    deleteRow(index);
+                };
+                cell5.appendChild(deleteButton);
+            });
+        }
+
+        // Menangani pengiriman formulir
+        document.getElementById('contact-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah pengiriman formulir yang default
+
+            // Mengambil nilai input
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const dob = document.getElementById('dob').value;
+            const phone = document.getElementById('phone').value;
+
+            // Jika editIndex adalah -1, berarti kita menambahkan data baru
+            const storedData = JSON.parse(localStorage.getItem('contactData')) || [];
+
+            if (editIndex === -1) {
+                storedData.push({ name, email, dob, phone });
+            } else {
+                // Jika sedang mengedit, update data yang ada
+                storedData[editIndex] = { name, email, dob, phone };
+                editIndex = -1; // Reset editIndex
+            }
+
+            localStorage.setItem('contactData', JSON.stringify(storedData));
+
+            // Memuat ulang data tabel
+            loadData();
+
+            // Mengosongkan input setelah pengiriman
+            document.getElementById('contact-form').reset();
+        });
+
+        // Fungsi untuk mengedit baris
+        function editRow(index) {
+            const storedData = JSON.parse(localStorage.getItem('contactData')) || [];
+            document.getElementById('name').value = storedData[index].name;
+            document.getElementById('email').value = storedData[index].email;
+            document.getElementById('dob').value = storedData[index].dob;
+            document.getElementById('phone').value = storedData[index].phone;
+            editIndex = index; // Simpan indeks yang sedang diedit
+        }
+
+        // Fungsi untuk menghapus baris
+        function deleteRow(index) {
+            const storedData = JSON.parse(localStorage.getItem('contactData')) || [];
+            storedData.splice(index, 1); // Menghapus item dari array
+            localStorage.setItem('contactData', JSON.stringify(storedData)); // Menyimpan kembali ke localStorage
+            loadData(); // Memuat ulang data tabel
+        }
+
+        // Fungsi untuk mengunduh tabel sebagai CSV
+        document.getElementById('download-csv').addEventListener('click', function() {
+            const rows = document.querySelectorAll("table tr");
+            let csvContent = "data:text/csv;charset=utf-8,";
+
+            rows.forEach(row => {
+                const cols = row.querySelectorAll("td, th");
+                const rowData = Array.from(cols).map(col => col.innerText).join(",");
+                csvContent += rowData + "\r\n";
+            });
+
+            // Membuat link untuk mengunduh
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "data_table.csv");
+            document.body.appendChild(link); // Diperlukan untuk Firefox
+
+            link.click(); // Mengunduh file
+            document.body.removeChild(link); // Menghapus link setelah mengunduh
+        });
+        // Menangani pengiriman formulir kontak
+            document.getElementById('contact-us-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah pengiriman formulir yang default
+
+            // Mengambil nilai input
+            const contactName = document.getElementById('contact-name').value;
+            const contactEmail = document.getElementById('contact-email').value;
+            const contactMessage = document.getElementById('contact-message').value;
+
+            // Menampilkan pesan konfirmasi
+            alert("Pesan Anda telah terkirim. Terima kasih, " + contactName + "!");
+
+            // Mengosongkan input setelah pengiriman
+            document.getElementById('contact-us-form').reset();
+        });
+
+
+        // Memuat data saat halaman dimuat
+        window.onload = loadData;
+    </script>
+</body>
+</html>
